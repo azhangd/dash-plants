@@ -7,16 +7,21 @@ import dash_bootstrap_components as dbc
 import dash_core_components as dcc
 import dash_html_components as html
 import numpy as np
+import os
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objs as go
 from dash.dependencies import Input, Output
 
-df = pd.read_csv('./data/zip_zones.csv')
+this_directory = os.path.dirname(__file__)
+src_zip_zones = os.path.join(this_directory, 'data', 'zip_zones.csv')
+src_usda_plants = os.path.join(this_directory, 'data', 'usda_plants_20160223.csv')
+
+df = pd.read_csv(src_zip_zones)
 df['min_temp'] = df['trange'].apply(lambda x: x.split(' ')[0])
 df['min_temp'] = pd.to_numeric(df['min_temp'])
 
-df_plants = pd.read_csv('./data/usda_plants_20160223.csv', engine='python')
+df_plants = pd.read_csv(src_usda_plants)
 
 df_plants.drop_duplicates()
 
