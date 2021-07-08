@@ -90,7 +90,6 @@ app = dash.Dash(
 )
 
 server = app.server
-app.title=tabtitle
 
 # def generate_table(dataframe, max_rows=10):
 #     return html.Table([
