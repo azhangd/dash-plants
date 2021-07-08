@@ -89,12 +89,15 @@ app = dash.Dash(
     ],
 )
 
-def generate_table(dataframe, max_rows=10):
-    return html.Table([
-        html.Thead(html.Tr([html.Th(col) for col in dataframe.columns])),
-        html.Tbody([html.Tr([html.Td(dataframe.iloc[i][col]) for col in dataframe.columns])
-                   for i in range(min(len(dataframe), max_rows))])
-    ])
+server = app.server
+app.title=tabtitle
+
+# def generate_table(dataframe, max_rows=10):
+#     return html.Table([
+#         html.Thead(html.Tr([html.Th(col) for col in dataframe.columns])),
+#         html.Tbody([html.Tr([html.Td(dataframe.iloc[i][col]) for col in dataframe.columns])
+#                    for i in range(min(len(dataframe), max_rows))])
+#     ])
 
 
 '''
@@ -135,17 +138,6 @@ app.layout = html.Div([
     html.Div([
         html.Div([         
             html.Label('Scientific Name'),
-
-            # daq.Thermometer( 
-            #     id='temperature',
-            #     value=0,
-            #     label="Temperature", 
-            #     max=65, 
-            #     min=-55, 
-            #     showCurrentValue=True, 
-            #     units="F", 
-            #     color='red'
-            # ),
 
             dcc.Dropdown(
                 id='plants-dropdown',
