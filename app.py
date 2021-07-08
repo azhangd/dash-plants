@@ -6,6 +6,7 @@ import dash_daq as daq
 import dash_bootstrap_components as dbc
 import dash_core_components as dcc
 import dash_html_components as html
+import dash_table
 import numpy as np
 import os
 import pandas as pd
@@ -62,7 +63,6 @@ colors = {
 }
 
 # external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
-# external_stylesheets = [dbc.themes.DARKLY]
 
 styles = {
     'pre': {
@@ -78,6 +78,7 @@ theme =  {
     'secondary': '#6E6E6E',
 }
 
+PAGE_SIZE = 5
 
 app = dash.Dash(
     __name__,
@@ -91,89 +92,108 @@ app = dash.Dash(
 
 server = app.server
 
-# def generate_table(dataframe, max_rows=10):
-#     return html.Table([
-#         html.Thead(html.Tr([html.Th(col) for col in dataframe.columns])),
-#         html.Tbody([html.Tr([html.Td(dataframe.iloc[i][col]) for col in dataframe.columns])
-#                    for i in range(min(len(dataframe), max_rows))])
-#     ])
-
-
 '''
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ~~~~~~~~~~~~~~~~~~ APP LAYOUT ~~~~~~~~~~~~~~~~~~
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 '''
 
-app.layout = html.Div([
-    html.Div(
-        [
-            html.Div(
-                [
-                    html.H1(
-                        "Plant Hardiness Dashboard",
-                        style={"margin-bottom": "0px"},
-                    )
-                ],
-                className="seven columns",
-                id="title"
-            ),
-            html.Div(
-                [
-                    html.A(
-                        html.Button("Source Code", id="learn-more-button"),
-                        href="https://plot.ly/dash/pricing/",
-                    )
-                ],
-                className="seven columns",
-                id="button"
-            )
-        ],
-        id="header",
-        className="row flex-display",
-        style={"margin-bottom": "25px"}
-    ),
+app.layout = html.Div(
+    [
+        html.Div(
+            [
+                html.Div(
+                    [
+                        html.H1(
+                            "Plant Hardiness Dashboard",
+                            style={"margin-bottom": "0px"},
+                        )
+                    ],
+                    className="seven columns",
+                    id="title"
+                ),
+                html.Div(
+                    [
+                        html.A(
+                            html.Button("Source Code", id="learn-more-button"),
+                            href="https://plot.ly/dash/pricing/",
+                        )
+                    ],
+                    className="seven columns",
+                    id="button"
+                )
+            ],
+            id="header",
+            # className="row flex-display",
+            className="pretty_container seven columns",
+            style={"margin-bottom": "25px"}
+        ),
 
-    html.Div([
-        html.Div([         
-            html.Label('Scientific Name'),
+        html.Div(
+            [
+                html.Div(
+                    [         
+                        html.Label('Scientific Name'),
 
-            dcc.Dropdown(
-                id='plants-dropdown',
-                options=[{'label': i, 'value': i} for i in df_plants['scientific_name']],
-                value=[],
-                multi=True
-                # style=dict(background='#1c2545')
-            ),
+                        dcc.Dropdown(
+                            id='plants-dropdown',
+                            options=[{'label': i, 'value': i} for i in df_plants['scientific_name']],
+                            value=[],
+                            multi=True
+                            # style=dict(background='#1c2545')
+                        ),
 
-            dcc.Graph(
-                id='plants-map',
-            ),
+                        dcc.Graph(
+                            id='plants-map',
+                        ),
 
-        ], className="pretty_container seven columns"),
+                    ], className="pretty_container seven columns"
+                ),
+            ], 
+            className="row"
+        ),
 
-    ], className="row"),
+        html.Div(
+            [
+                html.Div(
+                    [         
+                        dash_table.DataTable(
+                        id='table-paging-and-sorting',
+                        columns=[
+                            {'name': i, 'id': i, 'deletable': True} for i in sorted(df.columns)
+                        ],
+                        page_current=0,
+                        page_size=PAGE_SIZE,
+                        page_action='custom',
 
-    html.Div(
-        [
-            dcc.Markdown(
-                """
-                **Click Data**
-                Click on points in the graph."""
-            ),
+                        sort_action='custom',
+                        sort_mode='single',
+                        sort_by=[]
+                        ),
 
-            html.Pre(id='click-data', style=styles['pre']),
+                        
+                        dcc.Markdown(
+                            """
+                            **Click Data**
+                            Click on points in the graph."""
+                        ),
 
-            daq.LEDDisplay(
-                id='led-zipcode',
-                value="00000",
-                label='zipcode',
-                backgroundColor='transparent'
-            ),
-        ],
-        className="pretty_container seven columns"
-    )
-])
+                        html.Pre(id='click-data', style=styles['pre']),
+
+                        daq.LEDDisplay(
+                            id='led-zipcode',
+                            value="00000",
+                            label='zipcode',
+                            backgroundColor='transparent'
+                        )
+                    ],
+                )
+            ],
+            id="right-column",
+            className="pretty_container seven columns"
+        )   
+    ]
+)
 
 '''
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -276,5 +296,25 @@ def display_click_data(clickData):
 #         click_zip = clickData['points'][0]['customdata'][1]
 #         print(df[['zipcode']==click_zip]['min_temp'])
 #         return df[['zipcode']==click_zip]['min_temp']
+
+@app.callback(
+    Output('table-paging-and-sorting', 'data'),
+    Input('table-paging-and-sorting', "page_current"),
+    Input('table-paging-and-sorting', "page_size"),
+    Input('table-paging-and-sorting', 'sort_by'))
+def update_table(page_current, page_size, sort_by):
+    if len(sort_by):
+        df_plants_filtered = df_plants.sort_values(
+            sort_by[0]['column_id'],
+            ascending=sort_by[0]['direction'] == 'asc',
+            inplace=False
+        )
+    else:
+        # No sort is applied
+        df_plants_filtered = df_plants
+
+    return df_plants_filtered.iloc[
+        page_current*page_size:(page_current+ 1)*page_size
+    ].to_dict('records')
 
 app.run_server(debug=True, use_reloader=False)
