@@ -147,5 +147,9 @@ body {
 }
 
 #plants-dropdown {
-    margin-bottom: 6.6rem;
+  margin-bottom: 6.6rem;
+}
+
+#table-paging-and-sorting {
+  hover: #161d33
 }
