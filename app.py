@@ -78,7 +78,7 @@ theme =  {
     'secondary': '#6E6E6E',
 }
 
-PAGE_SIZE = 5
+PAGE_SIZE = 20
 
 app = dash.Dash(
     __name__,
@@ -109,23 +109,22 @@ app.layout = html.Div(
                             style={"margin-bottom": "0px"},
                         )
                     ],
-                    className="seven columns",
+                    className="one-half column",
                     id="title"
                 ),
                 html.Div(
                     [
                         html.A(
                             html.Button("Source Code", id="learn-more-button"),
-                            href="https://plot.ly/dash/pricing/",
+                            href="https://github.com/azhangd/dash-plant-hardiness",
                         )
                     ],
-                    className="seven columns",
+                    className="one-third column",
                     id="button"
                 )
             ],
             id="header",
-            # className="row flex-display",
-            className="pretty_container seven columns",
+            className="row flex-display",
             style={"margin-bottom": "25px"}
         ),
 
@@ -139,38 +138,61 @@ app.layout = html.Div(
                             id='plants-dropdown',
                             options=[{'label': i, 'value': i} for i in df_plants['scientific_name']],
                             value=[],
-                            multi=True
-                            # style=dict(background='#1c2545')
+                            multi=True,
+                            className="dcc_control"
                         ),
 
                         dcc.Graph(
                             id='plants-map',
                         ),
 
-                    ], className="pretty_container seven columns"
+                    ], 
+                    className="pretty_container eight columns"
                 ),
-            ], 
-            className="row"
-        ),
 
-        html.Div(
-            [
                 html.Div(
                     [         
-                        dash_table.DataTable(
-                        id='table-paging-and-sorting',
-                        columns=[
-                            {'name': i, 'id': i, 'deletable': True} for i in sorted(df.columns)
-                        ],
-                        page_current=0,
-                        page_size=PAGE_SIZE,
-                        page_action='custom',
-
-                        sort_action='custom',
-                        sort_mode='single',
-                        sort_by=[]
+                        daq.LEDDisplay(
+                            id='led-zipcode',
+                            value="00000",
+                            label='zipcode',
+                            backgroundColor='transparent'
                         ),
 
+                        html.Div(
+                            [
+                                dash_table.DataTable(
+                                    id='table-paging-and-sorting',
+                                    columns=[
+                                        {'name': i, 'id': i, 'deletable': True} for i in sorted(df_plants.columns)
+                                    ],
+                                    page_current=0,
+                                    page_size=PAGE_SIZE,
+                                    page_action='custom',
+
+                                    sort_action='custom',
+                                    sort_mode='single',
+                                    sort_by=[],
+                                    style_cell={
+                                        'backgroundColor': colors['background'],
+                                        'color': colors['text'],
+                                        'textAlign': 'right'
+                                    },
+                                    style_as_list_view=True,
+                                    
+                                    style_data_conditional=[
+                                        {
+                                            "if": {"state": "active"},  # 'active' | 'selected'
+                                            "backgroundColor":colors['background'],
+                                            "border": "1px solid blue"
+                                        },{
+                                            "if": {"state": "selected"},
+                                            "backgroundColor": "rgba(0, 116, 217, 0.3)",
+                                        },
+                                    ],                  
+                                )
+                            ],
+                        ),
                         
                         dcc.Markdown(
                             """
@@ -179,20 +201,17 @@ app.layout = html.Div(
                         ),
 
                         html.Pre(id='click-data', style=styles['pre']),
-
-                        daq.LEDDisplay(
-                            id='led-zipcode',
-                            value="00000",
-                            label='zipcode',
-                            backgroundColor='transparent'
-                        )
                     ],
+                    id="right-column",
+                    className="pretty_container five columns"
                 )
-            ],
-            id="right-column",
-            className="pretty_container seven columns"
-        )   
-    ]
+                
+            ], 
+            className="row flex-display"
+        ),
+    ],
+    id="mainContainer",
+    style={"display": "flex", "flex-direction": "column"}
 )
 
 '''
