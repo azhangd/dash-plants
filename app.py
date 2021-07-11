@@ -25,9 +25,11 @@ df['min_temp'] = pd.to_numeric(df['min_temp'])
 df_plants = pd.read_csv(src_usda_plants)
 
 df_plants.drop_duplicates()
+df_plants['id'] = df_plants.index
 
 df_plants = df_plants.filter(
     items=[
+        'id',
         'Symbol',
         'Scientific Name.x',
         'Common Name'
@@ -54,6 +56,8 @@ df_plants = df_plants.rename(
 )
 
 df_plants = df_plants[df_plants['min_temp'].notnull()]
+
+df_plants.head()
 
 px.set_mapbox_access_token("pk.eyJ1IjoiYmlnZG9nZGF0YSIsImEiOiJja3FiYnd2MWcwaDF1Mm9rZDhpNGVqc2gzIn0.XeBuYQMlGHgu4ml4R4RtRQ")
 
@@ -93,9 +97,7 @@ app = dash.Dash(
 server = app.server
 
 '''
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-~~~~~~~~~~~~~~~~~~ APP LAYOUT ~~~~~~~~~~~~~~~~~~
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+########################## APP LAYOUT ##########################
 '''
 
 app.layout = html.Div(
@@ -119,7 +121,6 @@ app.layout = html.Div(
                             href="https://github.com/azhangd/dash-plant-hardiness",
                         )
                     ],
-                    className="one-third column",
                     id="button"
                 )
             ],
@@ -143,7 +144,7 @@ app.layout = html.Div(
                         ),
 
                         dcc.Graph(
-                            id='plants-map',
+                            id='plants-map'
                         ),
 
                     ], 
@@ -164,7 +165,7 @@ app.layout = html.Div(
                                 dash_table.DataTable(
                                     id='table-paging-and-sorting',
                                     columns=[
-                                        {'name': i, 'id': i, 'deletable': True} for i in sorted(df_plants.columns)
+                                        {'name': i, 'id': i, 'deletable': True} for i in df_plants.columns
                                     ],
                                     page_current=0,
                                     page_size=PAGE_SIZE,
@@ -173,40 +174,59 @@ app.layout = html.Div(
                                     sort_action='custom',
                                     sort_mode='single',
                                     sort_by=[],
+                                    style_data_conditional=[                
+                                        {
+                                            "if": {"state": "active"},  # 'active' | 'selected'
+                                            "backgroundColor": "#525F89",
+                                            "border": "#FFFFF"
+                                            # "border": "1px solid blue"
+                                        }
+                                    ],
                                     style_cell={
                                         'backgroundColor': colors['background'],
                                         'color': colors['text'],
                                         'textAlign': 'right'
                                     },
                                     style_as_list_view=True,
-                                    
-                                    style_data_conditional=[
+                                    css=[
                                         {
-                                            "if": {"state": "active"},  # 'active' | 'selected'
-                                            "backgroundColor":colors['background'],
-                                            "border": "1px solid blue"
-                                        },{
-                                            "if": {"state": "selected"},
-                                            "backgroundColor": "rgba(0, 116, 217, 0.3)",
-                                        },
-                                    ],                  
-                                )
+                                            'selector': 'tr:hover', 
+                                            'rule': 'background-color: #525F89;'
+                                        }
+                                    ],
+                                    tooltip_data=[
+                                        {
+                                            column: {
+                                                'value': 'Location at Big Bear Lake\n\n![Big Bear Lake](https://upload.wikimedia.org/wikipedia/commons/thumb/d/d9/Big_Bear_Valley%2C_California.jpg/1200px-Big_Bear_Valley%2C_California.jpg)', 
+                                                # 'value': 
+                                                'type': 'markdown'
+                                                }
+                                            # column: {'value': get_image(value), 'type': 'markdown'}
+                                            for column, value in row.items()
+                                        } for row in df_plants.to_dict('records')
+                                    ],
+                                ),
+                                # dash_table.DataTable(
+                                #     id='output',
+                                #     columns=[
+                                #         {'name': i, 'id': i} for i in sorted(df_plants.columns)
+                                #     ],
+                                # )
                             ],
                         ),
                         
-                        dcc.Markdown(
-                            """
-                            **Click Data**
-                            Click on points in the graph."""
-                        ),
-
-                        html.Pre(id='click-data', style=styles['pre']),
+                        # dcc.Markdown(
+                        #     """
+                        #     **Click Data**
+                        #     Click on points in the graph."""
+                        # ),
+                    
+                        # html.Pre(id='click-data', style=styles['pre']),
                     ],
                     id="right-column",
                     className="pretty_container five columns"
-                )
-                
-            ], 
+                ),
+            ],
             className="row flex-display"
         ),
     ],
@@ -214,12 +234,29 @@ app.layout = html.Div(
     style={"display": "flex", "flex-direction": "column"}
 )
 
-'''
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-~~~~~~~~~~~~~~~~~~ APP METHODS ~~~~~~~~~~~~~~~~~
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-'''
+                # html.Div(
+                #     [         
+                #         html.Label('Scientific Name'),
 
+                #         dcc.Dropdown(
+                #             id='plants-dropdown',
+                #             options=[{'label': i, 'value': i} for i in df_plants['scientific_name']],
+                #             value=[],
+                #             multi=True,
+                #             className="dcc_control"
+                #         ),
+
+                #         dcc.Graph(
+                #             id='plants-map',
+                #         ),
+
+                #     ], 
+                #     className="pretty_container eight columns"
+                # ),
+
+'''
+########################## HELPER FUNCTIONS ##########################
+'''
 
 def filter_df_plants(selected_plant):
     df_plants_filtered = df_plants[df_plants['scientific_name'].isin(selected_plant)]
@@ -227,11 +264,17 @@ def filter_df_plants(selected_plant):
     filtered_df = df[df['min_temp'] >= selected_temp]
     return filtered_df
 
+def get_image(selected_plant):
+    base_url = 'https://plants.sc.egov.usda.gov/ImageLibrary/standard/_001_svp.jpg'
+    url = df_plants.query('scientific_name = @selected_plant')['symbol']
+    print(base_url[:54] + url + base_url[54:])
+    return base_url[:54] + url + base_url[54:]
+
+                
 '''
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-~~~~~~~~~~~~~~~~~~ APP CALLBACKS ~~~~~~~~~~~~~~~
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+########################## CALLBACKS ##########################
 '''
+
 
 @app.callback(
     Output('plants-map', 'figure'),
@@ -239,6 +282,8 @@ def filter_df_plants(selected_plant):
     Input('plants-dropdown', 'value')
 )
 def update_graph(selected_plant):
+    if selected_plant is None:
+        return dash.no_update
     if not selected_plant:
         filtered_df = df
     else:
@@ -296,25 +341,17 @@ def display_click_data(clickData):
     else:
         return clickData['points'][0]['customdata'][1]
 
-@app.callback(
-    Output('click-data', 'children'),
-    Input('plants-map', 'clickData'))
-def display_click_data(clickData):
-    if clickData is None:
-        return 'none'
-    else:
-        return json.dumps(clickData['points'][0]['customdata'], indent=2)
-
+'''
+# Scattermap click data
+'''
 # @app.callback(
-#     Output('temperature', 'value'),
+#     Output('click-data', 'children'),
 #     Input('plants-map', 'clickData'))
 # def display_click_data(clickData):
 #     if clickData is None:
-#         return 0
+#         return 'none'
 #     else:
-#         click_zip = clickData['points'][0]['customdata'][1]
-#         print(df[['zipcode']==click_zip]['min_temp'])
-#         return df[['zipcode']==click_zip]['min_temp']
+#         return json.dumps(clickData['points'][0]['customdata'], indent=2)
 
 @app.callback(
     Output('table-paging-and-sorting', 'data'),
@@ -328,12 +365,33 @@ def update_table(page_current, page_size, sort_by):
             ascending=sort_by[0]['direction'] == 'asc',
             inplace=False
         )
-    else:
+    else: 
         # No sort is applied
         df_plants_filtered = df_plants
 
-    return df_plants_filtered.iloc[
-        page_current*page_size:(page_current+ 1)*page_size
-    ].to_dict('records')
+    return df_plants_filtered.iloc[page_current*page_size:(page_current+ 1)*page_size].to_dict('records')
+
+# @app.callback(
+#     Output("output", "data"), 
+#     Input("table-paging-and-sorting", "active_cell")
+# )
+# def cell_clicked(active_cell):
+#     if active_cell is None:
+#         return dash.no_update
+
+#     row = active_cell["row_id"]
+#     col = active_cell["column_id"]
+#     selected_plant = df_plants.at[row, col]
+#     # df_selected_plant= df_plants[df_plants['scientific_name'] == selected_plant],
+#     df_selected_plant= df_plants.query('scientific_name==@selected_plant')
+#     print(df_selected_plant)
+#     fig = dash_table.DataTable(
+#         columns=[
+#             {'name': i, 'id': i} for i in sorted(df_selected_plant.columns)
+#         ],
+#         data=df_selected_plant.to_dict("records"),
+#         export_format="csv"
+#     )
+#     return fig
 
 app.run_server(debug=True, use_reloader=False)
