@@ -162,50 +162,50 @@ app.layout = html.Div(
 
                         html.Div(
                             [
-                                dash_table.DataTable(
-                                    id='table-paging-and-sorting',
-                                    columns=[
-                                        {'name': i, 'id': i, 'deletable': True} for i in df_plants.columns
-                                    ],
-                                    page_current=0,
-                                    page_size=PAGE_SIZE,
-                                    page_action='custom',
+                                # dash_table.DataTable(
+                                #     id='table-paging-and-sorting',
+                                #     columns=[
+                                #         {'name': i, 'id': i, 'deletable': True} for i in df_plants.columns
+                                #     ],
+                                #     page_current=0,
+                                #     page_size=PAGE_SIZE,
+                                #     page_action='custom',
 
-                                    sort_action='custom',
-                                    sort_mode='single',
-                                    sort_by=[],
-                                    style_data_conditional=[                
-                                        {
-                                            "if": {"state": "active"},  # 'active' | 'selected'
-                                            "backgroundColor": "#525F89",
-                                            "border": "#FFFFF"
-                                            # "border": "1px solid blue"
-                                        }
-                                    ],
-                                    style_cell={
-                                        'backgroundColor': colors['background'],
-                                        'color': colors['text'],
-                                        'textAlign': 'right'
-                                    },
-                                    style_as_list_view=True,
-                                    css=[
-                                        {
-                                            'selector': 'tr:hover', 
-                                            'rule': 'background-color: #525F89;'
-                                        }
-                                    ],
-                                    tooltip_data=[
-                                        {
-                                            column: {
-                                                'value': 'Location at Big Bear Lake\n\n![Big Bear Lake](https://upload.wikimedia.org/wikipedia/commons/thumb/d/d9/Big_Bear_Valley%2C_California.jpg/1200px-Big_Bear_Valley%2C_California.jpg)', 
-                                                # 'value': 
-                                                'type': 'markdown'
-                                                }
-                                            # column: {'value': get_image(value), 'type': 'markdown'}
-                                            for column, value in row.items()
-                                        } for row in df_plants.to_dict('records')
-                                    ],
-                                ),
+                                #     sort_action='custom',
+                                #     sort_mode='single',
+                                #     sort_by=[],
+                                #     style_data_conditional=[                
+                                #         {
+                                #             "if": {"state": "active"},  # 'active' | 'selected'
+                                #             "backgroundColor": "#525F89",
+                                #             "border": "#FFFFF"
+                                #             # "border": "1px solid blue"
+                                #         }
+                                #     ],
+                                #     style_cell={
+                                #         'backgroundColor': colors['background'],
+                                #         'color': colors['text'],
+                                #         'textAlign': 'right'
+                                #     },
+                                #     style_as_list_view=True,
+                                #     css=[
+                                #         {
+                                #             'selector': 'tr:hover', 
+                                #             'rule': 'background-color: #525F89;'
+                                #         }
+                                #     ],
+                                #     tooltip_data=[
+                                #         {
+                                #             column: {
+                                #                 'value': 'Location at Big Bear Lake\n\n![Big Bear Lake](https://upload.wikimedia.org/wikipedia/commons/thumb/d/d9/Big_Bear_Valley%2C_California.jpg/1200px-Big_Bear_Valley%2C_California.jpg)', 
+                                #                 # 'value': 
+                                #                 'type': 'markdown'
+                                #                 }
+                                #             # column: {'value': get_image(value), 'type': 'markdown'}
+                                #             for column, value in row.items()
+                                #         } for row in df_plants.to_dict('records')
+                                #     ],
+                                # ),
                                 # dash_table.DataTable(
                                 #     id='output',
                                 #     columns=[
@@ -229,30 +229,73 @@ app.layout = html.Div(
             ],
             className="row flex-display"
         ),
+
+        html.Div(
+            [
+                html.Div(
+                    [         
+                        dash_table.DataTable(
+                            id='table-paging-and-sorting',
+                            columns=[
+                                {'name': i, 'id': i, 'deletable': True} for i in df_plants.columns
+                            ],
+                            page_current=0,
+                            page_size=PAGE_SIZE,
+                            page_action='custom',
+
+                            sort_action='custom',
+                            sort_mode='single',
+                            sort_by=[],
+                            style_data_conditional=[                
+                                {
+                                    "if": {"state": "active"},  # 'active' | 'selected'
+                                    "backgroundColor": "#525F89",
+                                    "border": "#FFFFF"
+                                    # "border": "1px solid blue"
+                                }
+                            ],
+                            style_cell={
+                                'backgroundColor': colors['background'],
+                                'color': colors['text'],
+                                'textAlign': 'right'
+                            },
+                            style_as_list_view=True,
+                            css=[
+                                {
+                                    'selector': 'tr:hover', 
+                                    'rule': 'background-color: #525F89;'
+                                }
+                            ],
+                            # tooltip_data=[
+                            #     {
+                            #         column: {
+                            #             'value': 'Location at Big Bear Lake\n\n![Big Bear Lake](https://upload.wikimedia.org/wikipedia/commons/thumb/d/d9/Big_Bear_Valley%2C_California.jpg/1200px-Big_Bear_Valley%2C_California.jpg)', 
+                            #             # 'value': 
+                            #             'type': 'markdown'
+                            #             }
+                            #         # column: {'value': get_image(value), 'type': 'markdown'}
+                            #         for column, value in row.items()
+                            #     } for row in df_plants.to_dict('records')
+                            # ],
+                        ),
+                    ], 
+                    className="pretty_container five columns"
+                ),
+
+                html.Div(
+                    [
+                        html.Img(id="image-url")
+                    ]
+                )
+
+            ],
+            className="row flex-display"
+        )
+
     ],
     id="mainContainer",
     style={"display": "flex", "flex-direction": "column"}
 )
-
-                # html.Div(
-                #     [         
-                #         html.Label('Scientific Name'),
-
-                #         dcc.Dropdown(
-                #             id='plants-dropdown',
-                #             options=[{'label': i, 'value': i} for i in df_plants['scientific_name']],
-                #             value=[],
-                #             multi=True,
-                #             className="dcc_control"
-                #         ),
-
-                #         dcc.Graph(
-                #             id='plants-map',
-                #         ),
-
-                #     ], 
-                #     className="pretty_container eight columns"
-                # ),
 
 '''
 ########################## HELPER FUNCTIONS ##########################
@@ -264,11 +307,17 @@ def filter_df_plants(selected_plant):
     filtered_df = df[df['min_temp'] >= selected_temp]
     return filtered_df
 
-def get_image(selected_plant):
-    base_url = 'https://plants.sc.egov.usda.gov/ImageLibrary/standard/_001_svp.jpg'
-    url = df_plants.query('scientific_name = @selected_plant')['symbol']
-    print(base_url[:54] + url + base_url[54:])
-    return base_url[:54] + url + base_url[54:]
+def get_image_url(selected_plant):
+    url_1 = 'https://plants.sc.egov.usda.gov/ImageLibrary/standard/'
+    url_2 = '_001_svp.jpg'
+    symbol = df_plants[df_plants['scientific_name']==selected_plant]['symbol'].to_string(index=False)
+    # print(symbol)
+    # url = df_plants.query('scientific_name = @selected_plant')['symbol']
+    # print('url_1 = ' + url_1)
+    # print('symbol = ' + symbol)
+    # print('url_2 = ' + url_2)
+    # print(url_1 + symbol + url_2)
+    return(url_1 + symbol + url_2)
 
                 
 '''
@@ -278,7 +327,6 @@ def get_image(selected_plant):
 
 @app.callback(
     Output('plants-map', 'figure'),
-
     Input('plants-dropdown', 'value')
 )
 def update_graph(selected_plant):
@@ -371,27 +419,31 @@ def update_table(page_current, page_size, sort_by):
 
     return df_plants_filtered.iloc[page_current*page_size:(page_current+ 1)*page_size].to_dict('records')
 
-# @app.callback(
-#     Output("output", "data"), 
-#     Input("table-paging-and-sorting", "active_cell")
-# )
-# def cell_clicked(active_cell):
-#     if active_cell is None:
-#         return dash.no_update
+@app.callback(
+    # Output("output", "data"), 
+    Output("image-url", "src"), 
+    Input("table-paging-and-sorting", "active_cell")
+)
+def cell_clicked(active_cell):
+    if active_cell is None:
+        return dash.no_update
 
-#     row = active_cell["row_id"]
-#     col = active_cell["column_id"]
-#     selected_plant = df_plants.at[row, col]
-#     # df_selected_plant= df_plants[df_plants['scientific_name'] == selected_plant],
-#     df_selected_plant= df_plants.query('scientific_name==@selected_plant')
-#     print(df_selected_plant)
-#     fig = dash_table.DataTable(
-#         columns=[
-#             {'name': i, 'id': i} for i in sorted(df_selected_plant.columns)
-#         ],
-#         data=df_selected_plant.to_dict("records"),
-#         export_format="csv"
-#     )
-#     return fig
+    row = active_cell["row_id"]
+    col = active_cell["column_id"]
+    selected_plant = df_plants.at[row, col]
+    # df_selected_plant= df_plants[df_plants['scientific_name'] == selected_plant],
+    # df_selected_plant= df_plants.query('scientific_name==@selected_plant')
+    # print(df_selected_plant)
+    # fig = dash_table.DataTable(
+    #     columns=[
+    #         {'name': i, 'id': i} for i in sorted(df_selected_plant.columns)
+    #     ],
+    #     data=df_selected_plant.to_dict("records"),
+    #     export_format="csv"
+    # )
+    # return fig
+    print(str(get_image_url(selected_plant)))
+    return str(get_image_url(selected_plant))
+
 
 app.run_server(debug=True, use_reloader=False)
