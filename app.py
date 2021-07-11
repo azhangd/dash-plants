@@ -311,12 +311,6 @@ def get_image_url(selected_plant):
     url_1 = 'https://plants.sc.egov.usda.gov/ImageLibrary/standard/'
     url_2 = '_001_svp.jpg'
     symbol = df_plants[df_plants['scientific_name']==selected_plant]['symbol'].to_string(index=False)
-    # print(symbol)
-    # url = df_plants.query('scientific_name = @selected_plant')['symbol']
-    # print('url_1 = ' + url_1)
-    # print('symbol = ' + symbol)
-    # print('url_2 = ' + url_2)
-    # print(url_1 + symbol + url_2)
     return(url_1 + symbol + url_2)
 
                 
