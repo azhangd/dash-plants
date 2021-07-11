@@ -150,6 +150,6 @@ body {
   margin-bottom: 6.6rem;
 }
 
-#table-paging-and-sorting {
-  hover: #161d33
+.dash-tooltip .dash-table-tooltip {
+  background-color: rgb(0,0,0); 
 }
