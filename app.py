@@ -13,6 +13,8 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objs as go
 from dash.dependencies import Input, Output
+from flask.helpers import get_root_path
+print(get_root_path(__name__))
 
 # Get relative data paths
 this_directory = os.path.dirname(__file__)
@@ -103,44 +105,76 @@ app.layout = html.Div(
         html.Div(
             [
                 html.Div(
-                    [         
-                        html.Label('Scientific Name'),
+                    [
+                        daq.LEDDisplay(
+                            id='led-zipcode',
+                            value="92620",
+                            label='Your Zipcode:',
+                            backgroundColor='transparent'
+                        ),
 
+                        html.Div(
+                            id='wrapper_div',
+                            children=[
+                                html.Label('Common Name'),
+                                dcc.Dropdown(
+                                    id='common-dropdown',
+                                    options=[{'label': i, 'value': i} for i in df_plants['common_name']],
+                                    value=['bitter panicgrass'],
+                                    multi=True,
+                                    className="dcc_control"
+                                ),
+                                html.Label('Scientific Name'),
+                                dcc.Dropdown(
+                                    id='scientific-dropdown',
+                                    options=[{'label': i, 'value': i} for i in df_plants['scientific_name_x']],
+                                    value=['Panic amarum Elliott'],
+                                    multi=True,
+                                    className="dcc_control"
+                                )
+                            ]
+                        ),
+
+                        # html.Label('Common Name'),
+                        # dcc.Dropdown(
+                        #     id='common-dropdown',
+                        #     options=[{'label': i, 'value': i} for i in df_plants['common_name']],
+                        #     value=['bitter panicgrass'],
+                        #     multi=True,
+                        #     className="dcc_control"
+                        # ),
+
+                        # html.Label('Scientific Name'),
+                        # dcc.Dropdown(
+                        #     id='scientific-dropdown',
+                        #     options=[{'label': i, 'value': i} for i in df_plants['scientific_name_x']],
+                        #     value=['Panic amarum Elliott'],
+                        #     multi=True,
+                        #     className="dcc_control"
+                        # ),
+
+
+                        html.Label('Zip Code'),
                         dcc.Dropdown(
-                            id='plants-dropdown',
-                            options=[{'label': i, 'value': i} for i in df_plants['common_name']],
-                            value=[],
-                            multi=True,
+                            id='zip-dropdown',
+                            options=[{'label': i, 'value': i} for i in df['zipcode']],
+                            value='92620',
+                            multi=False,
                             className="dcc_control"
                         ),
 
-                        dcc.Graph(
-                            id='plants-map'
-                        ),
-
                     ], 
-                    className="pretty_container eight columns"
+                    className="pretty_container five columns"
                 ),
 
                 html.Div(
                     [         
-                        daq.LEDDisplay(
-                            id='led-zipcode',
-                            value="00000",
-                            label='zipcode',
-                            backgroundColor='transparent'
+                        dcc.Graph(
+                            id='plants-map'
                         ),
-                        
-                        # dcc.Markdown(
-                        #     """
-                        #     **Click Data**
-                        #     Click on points in the graph."""
-                        # ),
-                    
-                        # html.Pre(id='click-data', style=styles['pre']),
                     ],
                     id="right-column",
-                    className="pretty_container five columns"
+                    className="pretty_container eight columns"
                 ),
             ],
             className="row flex-display"
@@ -183,7 +217,6 @@ app.layout = html.Div(
                                 }
                             ],
                         ),
-
                         html.Div(
                             [
                                 html.Img(id="image-url")
@@ -213,10 +246,14 @@ def get_image_url(selected_plant):
     symbol = df_plants[df_plants['common_name']==selected_plant]['symbol'].to_string(index=False)
     return(url_1 + symbol + url_2)
 
+def filter_df(selected_zip):
+    # return df.query('zipcode == @selected_zip')
+    return df[df['zipcode'] == selected_zip]
+
 # Update map with dropdown
 @app.callback(
     Output('plants-map', 'figure'),
-    Input('plants-dropdown', 'value')
+    Input('common-dropdown', 'value')
 )
 def update_graph(selected_plant):
     if selected_plant is None:
@@ -258,6 +295,16 @@ def update_graph(selected_plant):
     )
     return fig
 
+@app.callback(
+    Output('table-paging-and-sorting', 'data'),
+    Input('zip-dropdown', 'value')
+)
+def update_table(selected_zip):
+    if selected_zip is None:
+        return dash.no_update
+    else:
+        return filter_df(selected_zip)
+        
 # Show zip code on map click
 @app.callback(
     Output('led-zipcode', 'value'),
@@ -268,25 +315,24 @@ def display_click_data(clickData):
     else:
         return clickData['points'][0]['customdata'][1]
 
-
 # Scattermap click data
-@app.callback(
-    Output('table-paging-and-sorting', 'data'),
-    Input('table-paging-and-sorting', "page_current"),
-    Input('table-paging-and-sorting', "page_size"),
-    Input('table-paging-and-sorting', 'sort_by'))
-def update_table(page_current, page_size, sort_by):
-    if len(sort_by):
-        df_plants_filtered = df_plants.sort_values(
-            sort_by[0]['column_id'],
-            ascending=sort_by[0]['direction'] == 'asc',
-            inplace=False
-        )
-    else: 
-        # No sort is applied
-        df_plants_filtered = df_plants
+# @app.callback(
+#     Output('table-paging-and-sorting', 'data'),
+#     Input('table-paging-and-sorting', "page_current"),
+#     Input('table-paging-and-sorting', "page_size"),
+#     Input('table-paging-and-sorting', 'sort_by'))
+# def update_table(page_current, page_size, sort_by):
+#     if len(sort_by):
+#         df_plants_filtered = df_plants.sort_values(
+#             sort_by[0]['column_id'],
+#             ascending=sort_by[0]['direction'] == 'asc',
+#             inplace=False
+#         )
+#     else: 
+#         # No sort is applied
+#         df_plants_filtered = df_plants
 
-    return df_plants_filtered.iloc[page_current*page_size:(page_current+ 1)*page_size].to_dict('records')
+#     return df_plants_filtered.iloc[page_current*page_size:(page_current+ 1)*page_size].to_dict('records')
 
 # Show image on datatable click
 @app.callback(
@@ -299,8 +345,91 @@ def cell_clicked(active_cell):
 
     row_id = active_cell["row_id"]
     selected_plant = df_plants.at[row_id, 'common_name']
-    print(str(get_image_url(selected_plant)))
     return str(get_image_url(selected_plant))
+
+# # Update scientific-dropdown with common-dropdown values
+# @app.callback(
+#     Output("scientific-dropdown", "value"),
+#     Input("common-dropdown", "value")
+# )
+# def sync_to_scientific(common):
+#     scientific_list = []
+#     if len(common) > 0:
+#         for i in common:
+#             scientific = df_plants[df_plants['common_name'] == i]['scientific_name_x'].to_string(index=False)
+#             scientific_list.append(scientific)
+#     return scientific_list
+
+# # Update common-dropdown with scientific-dropdown values
+# @app.callback(
+#     Output("common-dropdown", "value"),
+#     Input("scientific-dropdown", "value")
+# )
+# def sync_to_scientific(scientific):
+#     common_list = []
+#     if len(scientific) > 0:
+#         for i in scientific:
+#             common = df_plants[df_plants['scientific_name_x'] == i]['common_name'].to_string(index=False)
+#             common_list.append(common)
+#     return common_list
+
+@app.callback(
+    Output('wrapper_div', 'children'),
+    [Input('common-dropdown', 'value'), Input('scientific-dropdown', "value")]
+)
+def input_update(common, scientific):
+    trigger_id = dash.callback_context.triggered[0]["prop_id"]
+
+    if trigger_id == "common-dropdown.value":
+        scientific_list = []
+        for i in common:
+            scientific = df_plants[df_plants['common_name'] == i]['scientific_name_x'].to_string(index=False)
+            scientific_list.append(scientific)
+        return [
+            html.Label('Common Name'),
+            dcc.Dropdown(
+                id='common-dropdown',
+                options=[{'label': i, 'value': i} for i in df_plants['common_name']],
+                value=common,
+                multi=True,
+                className="dcc_control"
+            ),
+            html.Label('Scientific Name'),
+            dcc.Dropdown(
+                id='scientific-dropdown',
+                options=[{'label': i, 'value': i} for i in df_plants['scientific_name_x']],
+                value=scientific_list,
+                multi=True,
+                className="dcc_control"
+            )
+        ]
+    if trigger_id == "scientific-dropdown.value":
+        common_list = []
+        if len(scientific) > 0:
+            for i in scientific:
+                common = df_plants[df_plants['scientific_name_x'] == i]['common_name'].to_string(index=False)
+                common_list.append(common)
+        return [
+            html.Label('Common Name'),
+            dcc.Dropdown(
+                id='common-dropdown',
+                options=[{'label': i, 'value': i} for i in df_plants['common_name']],
+                value=common_list,
+                multi=True,
+                className="dcc_control"
+            ),
+            html.Label('Scientific Name'),
+            dcc.Dropdown(
+                id='scientific-dropdown',
+                options=[{'label': i, 'value': i} for i in df_plants['scientific_name_x']],
+                value=scientific,
+                multi=True,
+                className="dcc_control"
+            )
+        ]
+    return dash.no_update
+
+
 
 
 app.run_server(debug=True, use_reloader=False)
