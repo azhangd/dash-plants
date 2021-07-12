@@ -32,8 +32,7 @@ body {
 }
 
 .dcc_control {
-  margin: 0;
-  padding: 5px;
+  margin: 10px;
   width: calc(100%-40px);
 }
 
@@ -147,9 +146,57 @@ body {
 }
 
 #plants-dropdown {
+  background-color: #1c2545;
   margin-bottom: 6.6rem;
 }
 
 .dash-tooltip .dash-table-tooltip {
-  background-color: rgb(0,0,0); 
+  background-color: #0000; 
+}
+
+.Select-menu-outer {
+    background-color: #1c2545;
+    border: 1px solid gray;
+}
+
+.dcc_control {
+  background-color: #1c2545;
+}
+
+.Select-control {
+  border:rgb(0, 0, 0);
+  border-bottom: 1px solid #80FCFF;
+  background-color: #1c2545;
+}
+
+.Select {
+  background-color: #1c2545;
+}
+
+.Select div {
+  background-color: #1c2545;
+}
+
+.Select-menu-outer div:hover {
+    background-color: rgba(255, 255, 255, 0.01);
+}
+
+.Select-value-label {
+    color: #a5b1cd !important;
+}
+
+.Select.is-focused > .Select-control {
+  background-color: #1c2545;
+}
+
+.Select.is-focused:not(.is-open) > .Select-control {
+  background-color: #1c2545;
+}
+
+.Select.is-focused > .Select-control {
+  background: #1c2545;
+}
+
+.Select.is-open > .Select-control {
+  border-color: #1c2545;
 }
