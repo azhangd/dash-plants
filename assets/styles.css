@@ -207,3 +207,7 @@ body {
 input {
   color: #eff4ff !important;
 }
+
+input[type="number"], textarea, select {
+  background-color: #1c2545;
+}

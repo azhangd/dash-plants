@@ -80,7 +80,7 @@ app.layout = html.Div(
                 html.Div(
                     [
                         html.H1(
-                            "Plant Hardiness Dashboard",
+                            "Plant Finder",
                             style={"margin-bottom": "0px"},
                         )
                     ],
@@ -91,7 +91,7 @@ app.layout = html.Div(
                     [
                         html.A(
                             html.Button("Source Code", id="learn-more-button"),
-                            href="https://github.com/azhangd/dash-plant-hardiness",
+                            href="https://github.com/azhangd/dash-plants",
                         )
                     ],
                     id="button"
@@ -220,6 +220,24 @@ app.layout = html.Div(
                                 }
                             ],
                         ),
+
+                        html.Br(),
+                        dcc.Checklist(
+                            id='datatable-use-page-count',
+                            options=[
+                                {'label': 'Use page_count', 'value': 'True'}
+                            ],
+                            value=['True']
+                        ),
+                        'Page count: ',
+                        dcc.Input(
+                            id='datatable-page-count',
+                            type='number',
+                            min=1,
+                            max=29,
+                            value=20
+                        ),
+
                         html.Div(
                             [
                                 html.Img(id="image-url")
@@ -303,7 +321,8 @@ def update_graph(selected_plant):
 @app.callback(
     # Output('led-zipcode', 'value'),
     Output('zip-dropdown', 'value'),
-    Input('plants-map', 'clickData'))
+    Input('plants-map', 'clickData')
+    )
 def display_click_data(clickData):
     if clickData is None:
         return dash.no_update
@@ -315,7 +334,9 @@ def display_click_data(clickData):
 #     Output('table-paging-and-sorting', 'data'),
 #     Input('table-paging-and-sorting', "page_current"),
 #     Input('table-paging-and-sorting', "page_size"),
-#     Input('table-paging-and-sorting', 'sort_by'))
+#     Input('table-paging-and-sorting', 'sort_by'),
+#     Input('zip-dropdown', 'value')
+# )
 # def update_table(page_current, page_size, sort_by):
 #     if len(sort_by):
 #         df_plants_filtered = df_plants.sort_values(
@@ -328,19 +349,60 @@ def display_click_data(clickData):
 #         df_plants_filtered = df_plants
 #     return df_plants_filtered.iloc[page_current*page_size:(page_current+ 1)*page_size].to_dict('records')
 
-# Filter datatable by zip code
+# # Filter datatable by zip code
+# @app.callback(
+#     Output('table-paging-and-sorting', 'data'),
+#     # Output('test', 'children'),
+#     Input('zip-dropdown', 'value')
+# )
+# def update_table(selected_zip):
+#     print(selected_zip)
+#     if selected_zip is None:
+#         return dash.no_update
+#     else:
+#         # print(filter_by_zip(selected_zip))
+#         return filter_by_zip(selected_zip).to_dict('records')
+
 @app.callback(
     Output('table-paging-and-sorting', 'data'),
-    # Output('test', 'children'),
-    Input('zip-dropdown', 'value')
+    [
+        Input('table-paging-and-sorting', "page_current"),
+        Input('table-paging-and-sorting', "page_size"),
+        Input('table-paging-and-sorting', 'sort_by'),
+        Input('zip-dropdown', 'value')
+    ]
 )
-def update_table(selected_zip):
-    print(selected_zip)
-    if selected_zip is None:
-        return dash.no_update
+def input_update(page_current, page_size, sort_by, selected_zip):
+    trigger_id = dash.callback_context.triggered[0]["prop_id"]
+    # page_size = 10
+
+    if trigger_id == "zip-dropdown.value":
+        print(selected_zip)
+        if selected_zip is None:
+            return dash.no_update
+        else:
+            # print(filter_by_zip(selected_zip))
+            return filter_by_zip(selected_zip).to_dict('records')
     else:
-        # print(filter_by_zip(selected_zip))
-        return filter_by_zip(selected_zip).to_dict('records')
+        if len(sort_by):
+            df_plants_filtered = df_plants.sort_values(
+                sort_by[0]['column_id'],
+                ascending=sort_by[0]['direction'] == 'asc',
+                inplace=False
+            )
+        else: 
+            # No sort is applied
+            df_plants_filtered = df_plants
+        return df_plants_filtered.iloc[page_current*page_size:(page_current+ 1)*page_size].to_dict('records')
+
+@app.callback(
+    Output('table-paging-and-sorting', 'page_count'),
+    Input('datatable-use-page-count', 'value'),
+    Input('datatable-page-count', 'value'))
+def update_table(use_page_count, page_count_value):
+    if len(use_page_count) == 0 or page_count_value is None:
+        return None
+    return page_count_value
 
 # Show image on datatable click
 @app.callback(
@@ -358,7 +420,10 @@ def cell_clicked(active_cell):
 # Sync scientific and common dropdowns
 @app.callback(
     Output('common_scientific_div', 'children'),
-    [Input('common-dropdown', 'value'), Input('scientific-dropdown', "value")]
+    [
+        Input('common-dropdown', 'value'),
+        Input('scientific-dropdown', "value")
+    ]
 )
 def input_update(common, scientific):
     trigger_id = dash.callback_context.triggered[0]["prop_id"]
