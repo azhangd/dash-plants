@@ -101,6 +101,11 @@ body {
   box-shadow: 2px 2px 2px lightgrey;
 }
 
+#middle-column {
+  display: flex;
+  flex-direction: column;
+}
+
 #right-column {
   display: flex;
   flex-direction: column;
@@ -127,21 +132,24 @@ body {
 
 /* width */
 ::-webkit-scrollbar {
-  width: 10px;
+  width: 5px;
 }
 
 /* Track */
 ::-webkit-scrollbar-track {
-  background: #f1f1f1;
+  background: #1b2444;
 }
 
 /* Handle */
 ::-webkit-scrollbar-thumb {
-  background: #1eaedb;
+  /* background: #1eaedb; */
+  background: #33ffe6;
+  border-radius: 25px;
 }
 
 /* Handle on hover */
 ::-webkit-scrollbar-thumb:hover {
+  /* background: #1E31DC; */
   background: #1E31DC;
 }
 
@@ -165,10 +173,10 @@ body {
 }
 
 .Select-control {
-  border-left: solid 0px mediumspringgreen !important;
-  border-top: solid 0px mediumspringgreen !important;
-  border-right: solid 0px mediumspringgreen !important;
-  border-bottom: solid 1px mediumspringgreen !important;
+  border-left: solid 0px #33ffe6 !important;
+  border-top: solid 0px #33ffe6 !important;
+  border-right: solid 0px #33ffe6 !important;
+  border-bottom: solid 1px #33ffe6 !important;
   color: white !important;
 }
 
@@ -202,6 +210,10 @@ body {
 
 .Select.is-open > .Select-control {
   background: #1c2545 !important;
+}
+
+.Select-placeholder {
+  color: white;
 }
 
 input {
