@@ -138,7 +138,15 @@ app.layout = html.Div(
                                         'color': 'white'
                                         # 'font-size': '25px'
                                     }
-                                ),                                  
+                                ),
+
+                                dcc.Checklist(
+                                    id='checklist-image',
+                                    options=[
+                                        {'label': 'Has Image?', 'value': 'Yes'}
+                                    ],
+                                    value=['Yes']
+                                ),                              
 
                                 dash_table.DataTable(
                                     id='table-paging-and-sorting',
@@ -363,6 +371,9 @@ def filter_by_duration(selected_df, duration_list):
         selected_df = selected_df[selected_df['duration'].str.contains(duration, case=False, na=False)]
     return selected_df
 
+def filter_by_image(selected_df):
+    return selected_df[selected_df['has_image'] > 0]
+
 # Update map with dropdown
 @app.callback(
     Output('plants-map', 'figure'),
@@ -458,17 +469,22 @@ def display_click_data(clickData):
 @app.callback(
         Output('table-paging-and-sorting', 'data'),
         Input('zip-dropdown', 'value'), 
-        Input("checklist-duration", "value")
+        Input("checklist-duration", "value"),
+        Input("checklist-image", "value")
 )   
-def update_table(selected_zip, duration_list):
+def update_table(selected_zip, duration_list, image_selected_list):
     data = df_plants
-    if selected_zip and duration_list is None:  
+    if selected_zip and duration_list and image_selected_list is None:  
         return data.to_dict('records')
     if selected_zip is not None:
         data = filter_by_zip(data, selected_zip)
     if duration_list is not None:
         data = filter_by_duration(data, duration_list)
-    print(data)
+    if image_selected_list:
+        print(image_selected_list)
+        print(type(image_selected_list))
+        print('filtering by image')
+        data = filter_by_image(data)
     return data.to_dict('records')
 
 
@@ -555,11 +571,13 @@ def cell_clicked(active_cell):
     trigger_id = dash.callback_context.triggered[0]["prop_id"]
     if trigger_id == 'table-paging-and-sorting.active_cell':
         if active_cell is None:
-            # return 'https://plants.sc.egov.usda.gov/ImageLibrary/standard/ARAM2_001_svp.jpg'
             return dash.no_update
         row_id = active_cell["row_id"]
-        selected_plant = df_plants.at[row_id, 'common_name']
-        return str(get_image_url(selected_plant))
+        if df_plants.at[row_id, 'has_image'] > 0:
+            selected_plant = df_plants.at[row_id, 'common_name']
+            return str(get_image_url(selected_plant))
+        else:
+            return 'https://upload.wikimedia.org/wikipedia/commons/1/14/No_Image_Available.jpg'
 
 
 # Add value to common/scientific dropdown when datatable is clicked
