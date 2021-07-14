@@ -108,13 +108,11 @@ app.layout = html.Div(
 
         html.Div(
             [
-
-
                 html.Div(
                     [
                         html.Div(
                             [   
-                                html.Label('Zip Code'),
+                                html.Label('Zip Code', className="control_label"),
                                 dcc.Dropdown(
                                     id='zip-dropdown',
                                     options=[{'label': i, 'value': i} for i in df['zipcode']],
@@ -124,7 +122,7 @@ app.layout = html.Div(
                                     className="dcc_control"
                                 ),
 
-                                html.P('Filter by duration:'),
+                                html.P('Duration:', className="control_label"),
 
                                 dcc.Checklist(
                                     id='checklist-duration',
@@ -134,18 +132,18 @@ app.layout = html.Div(
                                         {'label': 'Perennial', 'value': 'Perennial'}
                                     ],
                                     labelStyle={'display': 'inline-block'},
-                                    style={
-                                        'color': 'white'
-                                        # 'font-size': '25px'
-                                    }
+                                    className="dcc_control"
                                 ),
 
+                                # html.P('Image:', className="control_label"),
                                 dcc.Checklist(
                                     id='checklist-image',
                                     options=[
                                         {'label': 'Has Image?', 'value': 'Yes'}
                                     ],
-                                    value=['Yes']
+                                    value=['Yes'],
+                                    labelStyle={'display': 'inline-block'},
+                                    className="dcc_control"
                                 ),                              
 
                                 dash_table.DataTable(
@@ -229,7 +227,7 @@ app.layout = html.Div(
                                 dcc.Dropdown(
                                     id='common-dropdown',
                                     options=[{'label': i, 'value': i} for i in df_plants['common_name']],
-                                    value=['clasping arnica'],
+                                    value=['Amur honeysuckle'],
                                     multi=True,
                                     className="dcc_control"
                                 ),
@@ -238,7 +236,7 @@ app.layout = html.Div(
                                 dcc.Dropdown(
                                     id='scientific-dropdown',
                                     options=[{'label': i, 'value': i} for i in df_plants['scientific_name_x']],
-                                    value=['Arnica amplexicaulis Nutt.'],
+                                    value=['Lonicera maackii (Rupr.) Herder'],
                                     multi=True,
                                     className="dcc_control"
                                 )
@@ -246,29 +244,37 @@ app.layout = html.Div(
                         ),
                         html.Div(
                             [
-                                html.Img(
-                                    id="image-url", 
-                                    src='https://plants.sc.egov.usda.gov/ImageLibrary/standard/ARAM2_001_svp.jpg',
-                                    style={
-                                        'height': '50%',
-                                        'width': '50%',
-                                        'marginTop': '30px',
-                                        'marginBottom': '30px'
-                                    }
-                                )
+                                dcc.Loading(
+                                    children=[
+                                        html.Img(
+                                            id='image-url', 
+                                            src='https://plants.sc.egov.usda.gov/ImageLibrary/standard/LOMA6_001_svp.jpg',
+                                            style={'width': '30%'}
+                                            # ,style={
+                                            # 'height': '50%',
+                                            # 'width': '50%',
+                                            # 'marginTop': '30px',
+                                            # 'marginBottom': '30px'
+                                            # }
+                                        )   
+                                    ],
+                                    type="dot"
+                                ),
                             ],
                             style={'textAlign': 'center'}
                         ),
                     ],
-                    id="middle-column",
-                    className="pretty_container four columns"                   
+                    id='middle-column',
+                    className='pretty_container four columns'                   
                 ),
 
                 html.Div(
                     [
-                        dcc.Graph(
-                            id='plants-map'
+                        dcc.Loading(
+                            children=[dcc.Graph(id='plants-map')],
+                            type="dot"
                         ),
+
                         # daq.LEDDisplay(
                         #     id='led-zipcode',
                         #     value="92620",
@@ -276,11 +282,11 @@ app.layout = html.Div(
                         #     backgroundColor='transparent'
                         # ),
                     ], 
-                    id="right-column",
-                    className="pretty_container five columns"
+                    id='right-column',
+                    className='pretty_container five columns'
                 ),
             ],
-            className="row flex-display"
+            className='row flex-display'
         ),
 
         html.Div(
@@ -481,10 +487,7 @@ def update_table(selected_zip, duration_list, image_selected_list):
     if duration_list is not None:
         data = filter_by_duration(data, duration_list)
     if image_selected_list:
-        print(image_selected_list)
-        print(type(image_selected_list))
-        print('filtering by image')
-        data = filter_by_image(data)
+        data = filter_by_image(data)    
     return data.to_dict('records')
 
 
@@ -565,7 +568,9 @@ def update_table(selected_zip, duration_list, image_selected_list):
 # Show image on datatable click
 @app.callback(
     Output("image-url", "src"), 
-    Input("table-paging-and-sorting", "active_cell")
+    Input("table-paging-and-sorting", "active_cell"),
+    prevent_initial_call=True
+
 )
 def cell_clicked(active_cell):
     trigger_id = dash.callback_context.triggered[0]["prop_id"]
@@ -577,7 +582,7 @@ def cell_clicked(active_cell):
             selected_plant = df_plants.at[row_id, 'common_name']
             return str(get_image_url(selected_plant))
         else:
-            return 'https://upload.wikimedia.org/wikipedia/commons/1/14/No_Image_Available.jpg'
+            return 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/No-Image-Placeholder.svg/1200px-No-Image-Placeholder.svg.png'
 
 
 # Add value to common/scientific dropdown when datatable is clicked
