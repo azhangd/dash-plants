@@ -494,10 +494,14 @@ ol {
 /* Misc
 –––––––––––––––––––––––––––––––––––––––––––––––––– */
 hr {
-  margin-top: 3rem;
+  /* margin-top: 3rem;
   margin-bottom: 3.5rem;
   border-width: 0;
-  border-top: 1px solid #e1e1e1;
+  border-top: 1px solid #e1e1e1; */
+  margin-top: 0;
+  margin-bottom: 0;
+  border-width: 0;
+  border-top: 1px solid #33ffe741;
 }
 
 /* Clearing
