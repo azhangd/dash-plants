@@ -192,8 +192,7 @@ body {
   font-size: 1.5em; /* currently ems cause chrome bug misinterpreting rems on body element */
   line-height: 1.6;
   font-weight: 400;
-  font-family: "Open Sans", "HelveticaNeue", "Helvetica Neue", Helvetica, Arial,
-    sans-serif;
+  font-family: "Open Sans", "HelveticaNeue", "Helvetica Neue", Helvetica, Arial, sans-serif;
   color: white;
 }
 
@@ -572,18 +571,6 @@ there.
   .container-display {
     display: flex;
   }
-  #wells,
-  #gas,
-  #oil {
-    margin-right: 10px;
-  }
-
-  #wells {
-    margin-left: 0px;
-  }
-  #water {
-    margin-right: 0px;
-  }
   .mini_container {
     margin-bottom: 25px !important;
     border-radius: 5px;
@@ -592,19 +579,11 @@ there.
     position: relative;
     box-shadow: 2px 2px 2px lightgrey;
   }
-  #plotly-image {
-    margin-bottom: 0px !important;
-    height: 45px !important;
-  }
-  #learn-more-button {
-    margin-top: 0px !important;
-    padding: 0 10px !important;
-    font-size: 12px !important;
-  }
-  #button {
+  #source-button {
     display: flex;
-    justify-content: center;
+    justify-content: center;    
   }
+
   #title {
     margin-bottom: 10px;
   }
