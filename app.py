@@ -7,6 +7,7 @@ import dash_bootstrap_components as dbc
 import dash_core_components as dcc
 import dash_html_components as html
 from dash_html_components.Div import Div
+from dash_html_components.Label import Label
 import dash_table
 import numpy as np
 import os
@@ -49,22 +50,6 @@ colors = {
     'text': 'white'
 }
 
-styles = {
-    'pre': {
-        'border': 'thin lightgrey solid',
-        'overflowX': 'scroll'
-    }
-}
-
-theme =  {
-    'dark': True,
-    'detail': '#007439',
-    'primary': '#00EA64',
-    'secondary': '#6E6E6E',
-}
-
-PAGE_SIZE = 20
-
 app = dash.Dash(
     __name__,
     meta_tags=[
@@ -74,7 +59,7 @@ app = dash.Dash(
             }
     ],
 )
-app.title = 'Plants Lookup'
+app.title = 'Plant Viewer'
 server = app.server
 
 # App layout
@@ -84,26 +69,24 @@ app.layout = html.Div(
             [
                 html.Div(
                     [
-                        html.H1(
-                            "Plant Finder",
-                            style={"margin-bottom": "0px"},
-                        )
+                        html.H1("Plant Viewer"),
                     ],
-                    className="one-half column",
-                    id="title"
+                    className='eight columns',
+                    id='title'
                 ),
                 html.Div(
                     [
                         html.A(
-                            html.Button("Source Code", id="learn-more-button"),
-                            href="https://github.com/azhangd/dash-plants",
+                            html.Button('Source Code'),
+                            href='https://github.com/azhangd/dash-plants',
+                            target="_blank"
                         )
                     ],
-                    id="button"
+                    className='one column'
                 )
             ],
-            id="header",
-            className="row flex-display",
+            id='header',
+            className='center-flex-display',
             style={"margin-bottom": "25px"}
         ),
 
@@ -113,7 +96,7 @@ app.layout = html.Div(
                     [
                         html.Div(
                             [   
-                                html.Label('Filter by Zip Code:', className="control_label"),
+                                html.Label('Filter by Zip Code', className="control_label"),
                                 dcc.Dropdown(
                                     id='zip-dropdown',
                                     options=[{'label': i, 'value': i} for i in df['zipcode']],
@@ -136,7 +119,7 @@ app.layout = html.Div(
                                     className="dcc_control"
                                 ),
                                 
-                                html.Label('Filter by Duration:', className="control_label"),
+                                html.Label('Filter by Duration', className="control_label"),
                                 dcc.Checklist(
                                     id='checklist-duration',
                                     options=[
@@ -148,7 +131,7 @@ app.layout = html.Div(
                                     className="dcc_control"
                                 ),
 
-                                html.Label('Filter by Growth Habit:', className="control_label"),
+                                html.Label('Filter by Growth Habit', className="control_label"),
                                 dcc.Dropdown(
                                     id='dropdown-growth-habit',
                                     options=[
@@ -163,68 +146,31 @@ app.layout = html.Div(
                                     placeholder="Growth Habit",
                                     className="dcc_control"
                                 ),
-
-                                # html.P('Image:', className="control_label"),
-                                # html.Hr(),
-                                # dcc.Checklist(
-                                #     id='checklist-image',
-                                #     options=[
-                                #         {'label': 'Has Image?', 'value': 'Yes'}
-                                #     ],
-                                #     value=['Yes'],
-                                #     labelStyle={'display': 'inline-block'},
-                                #     className="dcc_control"
-                                # ),
                                 html.Div(
                                     [
-                                        html.Label('Has image?', style={'marginRight': '5px'}),
+                                        html.Label('Has image:', style={'marginRight': '7px'}),
                                         daq.BooleanSwitch(
                                             id='checklist-image',
                                             on=True,
-                                            # theme =  {'dark': True},
-                                            # label='Has image:',
-                                            color="#33ffe6",
-                                            # className="button"
+                                            color='#80FCFF',
                                             style={'marginRight':'20px'}
                                         ),
-
-                                        # html.Label('Has guide?', style={'marginRight': '5px'}),
-                                        # daq.BooleanSwitch(
-                                        #     on=True,
-                                        #     # theme =  {'dark': True},
-                                        #     # label='Has image:',
-                                        #     color="#33ffe6",
-                                        #     # className="button"
-                                        #     # style={'textAlign':'right'}
-                                        # ),    
                                     ],
                                     className='control_label row flex-display'
                                 ),
-                                
-                                # html.Label('Has image:', className="control_label"),                 
-                                # daq.BooleanSwitch(
-                                #     id='checklist-image',
-                                #     on=True,
-                                #     # theme =  {'dark': True},
-                                #     # label='Has image:',
-                                #     color="#33ffe6",
-                                #     className="button"
-                                #     # style={'textAlign':'right'}
-                                # ),
                                 dash_table.DataTable(
                                     id='table-paging-and-sorting',
                                     columns=[
                                         {'name': 'Common Name', 'id': 'common_name'},
                                     ],
-                                    page_size=50,
+                                    page_size=25,
                                     style_table={'height': '500px', 'overflowY': 'auto', 'marginTop': '15px'},
                                     style_header={'backgroundColor': '#525F89'},
                                     style_data_conditional=[                
                                         {
-                                            'if': {'state': 'active'},  # 'active' | 'selected'
+                                            'if': {'state': 'active'},
                                             'backgroundColor': '#525F89',
-                                            'border': '#FFFFF'
-                                            # "border": "1px solid blue"                                    
+                                            'border': '#FFFFF'                        
                                         },
                                         {
                                             'if': {'column_id': 'common_name'},
@@ -243,7 +189,7 @@ app.layout = html.Div(
                                         'textAlign': 'left'
                                     },
                                     style_as_list_view=True,
-                                    active_cell={'row': 3, 'column': 0, 'column_id': 'common_name', 'row_id': 36},
+                                    active_cell={'row': 6, 'column': 0, 'column_id': 'common_name', 'row_id': 52},
                                     css=[
                                         {
                                             'selector': 'tr:hover', 
@@ -256,72 +202,70 @@ app.layout = html.Div(
                     ],
                     className="pretty_container two columns"                   
                 ),
-
                 html.Div(
                     [
-                        # html.Div(
-                        #     [
+                        html.Div(
+                            id='common_scientific_div',
+                            children=[
                                 html.Div(
-                                    id='common_scientific_div',
-                                    children=[
+                                    [
                                         html.Label('Common Name', className='control_label'),
                                         dcc.Dropdown(
                                             id='common-dropdown',
                                             options=[{'label': i, 'value': i} for i in df_plants['common_name']],
-                                            value='Amur honeysuckle',
-                                            multi=False,
-                                            className="dcc_control"
-                                        ),
+                                            value='California blackberry',
+                                            multi=False
+                                        ),   
+                                    ],
+                                    style={'width': '100%'}
+                                ),
+                                html.Div(
+                                    [
                                         html.Label('Scientific Name', className='control_label'),
                                         dcc.Dropdown(
                                             id='scientific-dropdown',
                                             options=[{'label': i, 'value': i} for i in df_plants['scientific_name_x']],
-                                            value='Lonicera maackii (Rupr.) Herder',
-                                            multi=False,
-                                            className="dcc_control"
-                                        )
+                                            value='Rubus ursinus Cham. & Schltdl.',
+                                            multi=False
+                                        )                                     
                                     ],
+                                    style={'width': '100%'}
                                 ),
-                                html.Div(
-                                    [
-                                        dcc.Loading(
-                                            children=[
-                                                html.Img(
-                                                    id='image-url', 
-                                                    src='https://plants.sc.egov.usda.gov/ImageLibrary/standard/LOMA6_001_svp.jpg',
-                                                    style={'width': '100%'}
-                                                ),
-                                            ],
-                                            type="dot",
-                                        ),
-                                        html.Div(id='table-characteristics-div', className='dcc_control'),
-                                    ],
-                                    id='plant-datatables',
-                                    className='container-display',
-                                ),
-                        #     ],
-                        # ),
+                            ],
+                            className='center-flex-display'
+                        ),
+                        html.Div(
+                            [
+                                html.Img(
+                                    id='image-url',
+                                    src='https://plants.sc.egov.usda.gov/ImageLibrary/standard/RUUR_001_svp.jpg',
+                                ),                            
+                            ],
+                            className='imagebox'
+                        ),
+                        dcc.Loading(
+                            html.Div(id='table-characteristics-div'),
+                            type="cube"
+                        ),
                     ],
                     id='middle-column',
-                    className='pretty_container three columns'                   
+                    className='pretty_container two columns'                   
                 ),
-
                 html.Div(
                     [
                         dcc.Loading(
                             children=[dcc.Graph(id='plants-map')],
-                            type="dot"
+                            type="cube"
                         ),
                     ], 
                     id='right-column',
-                    className='pretty_container four columns'
+                    className='pretty_container five columns'
                 ),
             ],
-            className='row flex-display'
+            className='center-flex-display'
         ),
     ],
-    id="mainContainer",
-    style={"display": "flex", "flex-direction": "column"}
+    id='mainContainer'
 )
 
 # Helper Functions
@@ -388,22 +332,18 @@ def update_graph(selected_plant):
         color="min_temp",
         color_continuous_scale=px.colors.sequential.haline,
         range_color=[-55, 65],
-        center={"lat": 37.0902, "lon": -95.7129},
-        zoom=4.5,
+        center={"lat": 39.5, "lon": -110},
+        zoom=4,
         opacity=0.8
     )
 
     fig.update_layout(
         legend_title_text='Min. Temp',
         mapbox_style="mapbox://styles/bigdogdata/ckqreebqs3s2b17rygkmnnyhy/draft",
-        # mapbox_style="mapbox://styles/plotlymapbox/cjvppq1jl1ips1co3j12b9hex",
-
         autosize=True,
         uirevision='no reset of zoom',
         margin=dict(l=30, r=30, b=20, t=0),
-        #margin=dict(t=0, b=0, l=0, r=0),
         height=1000,
-        #width = 1920,
         plot_bgcolor=colors['background'],
         paper_bgcolor=colors['background'],
         legend_bgcolor=colors['background'],
@@ -437,10 +377,6 @@ def update_slider(zipcode, selected_temp):
         zipcode_temp = df[df['zipcode']==zipcode]['min_temp'].item()
         if zipcode_temp <= selected_temp:
             return zipcode_temp
-        # if zipcode_temp <= selected_temp:
-        #     return df[df['zipcode']==zipcode]['min_temp'].item()
-        # else:
-        #     return -70
     return dash.no_update
 
 # Update table using zip dropdown
@@ -454,8 +390,6 @@ def update_slider(zipcode, selected_temp):
 )   
 def update_table(selected_zip, duration_list, image_selected_list, selected_temperature, growth_habit_list):
     data = df_plants
-    # if selected_zip and duration_list and image_selected_list and growth_habit_list is None:  
-    #     return data.to_dict('records')
     if selected_zip is not None:
         data = filter_by_zip(data, selected_zip)
     if duration_list is not None:
@@ -474,34 +408,6 @@ def update_table(selected_zip, duration_list, image_selected_list, selected_temp
     Input('slider-temperature', 'drag_value')
 )
 def display_value(drag_value):
-    # if drag_value < -65: zone = '0a'
-    # elif -65 <= drag_value <= -60: zone = '0b'
-    # elif -60 <= drag_value <= -55: zone = '1a'
-    # elif -55 <= drag_value <= -50: zone = '1b'
-    # elif -50 <= drag_value <= -45: zone = '2a'
-    # elif -45 <= drag_value <= -40: zone = '2b'
-    # elif -40 <= drag_value <= -35: zone = '3a'
-    # elif -35 <= drag_value <= -30: zone = '3b'
-    # elif -30 <= drag_value <= -25: zone = '4a'
-    # elif -25 <= drag_value <= -20: zone = '4b'
-    # elif -20 <= drag_value <= -15: zone = '5a'
-    # elif -15 <= drag_value <= -10: zone = '5b'
-    # elif -10 <= drag_value <= -5: zone = '6a'
-    # elif -5 <= drag_value <= 0: zone = '6b'
-    # elif 0 <= drag_value <= 5: zone = '7a'
-    # elif 5 <= drag_value <= 10: zone = '7b'
-    # elif 10 <= drag_value <= 15: zone = '8a'
-    # elif 15 <= drag_value <= 20: zone = '8b'
-    # elif 20 <= drag_value <= 25: zone = '9a'
-    # elif 25 <= drag_value <= 30: zone = '9b'
-    # elif 30 <= drag_value <= 35: zone = '10a'
-    # elif 35 <= drag_value <= 40: zone = '10b'
-    # elif 40 <= drag_value <= 45: zone = '11a'
-    # elif 45 <= drag_value <= 50: zone = '11b'
-    # elif 50 <= drag_value <= 55: zone = '12a'
-    # elif 55 <= drag_value <= 60: zone = '12b'
-    # elif 60 <= drag_value <= 65: zone = '13a'
-    # else: zone = '13b'
     return 'Filter by Minimum Temperature: {}°F'.format(drag_value)
 
 # Show image on datatable click
@@ -525,7 +431,6 @@ def cell_clicked(active_cell):
 # Update characteristics
 @app.callback(
     Output('table-characteristics-div', 'children'),
-    # Output("table-characteristics", "columns"),
     Input("common-dropdown", "value")
 )
 def update_table(selected_plant):
@@ -535,7 +440,7 @@ def update_table(selected_plant):
     data_characteristics = transpose_classification(df_characteristics, selected_plant)
     dict_chracteristics = data_characteristics.to_dict('records')
 
-    df_growth = df_plants[['id', 'common_name', 'growth_habit', 'growth_rate', 'height_mature_feet', 'lifespan', 'toxicity']]
+    df_growth = df_plants[['id', 'common_name', 'temperature_minimum_f', 'growth_habit', 'growth_rate', 'height_mature_feet', 'lifespan', 'toxicity']]
     data_growth = transpose_classification(df_growth, selected_plant)
     dict_growth = data_growth.to_dict('records')
 
@@ -544,14 +449,13 @@ def update_table(selected_plant):
     dict_reproduction = data_reproduction.to_dict('records')
 
     return [
+        # Update characteristics table
         html.Div(
             [
                 dash_table.DataTable(
                     id='table-characteristics',
                     columns=[{'name': ['Characteristics', str(i)], 'id': str(i)} for i in data_characteristics.columns],
                     data=dict_chracteristics,
-                    page_size=50,
-                    style_table={'width': '50%'},
                     style_header={
                         'backgroundColor': 'rgb(30, 30, 30)', 
                         'border': 'none', 
@@ -567,21 +471,19 @@ def update_table(selected_plant):
                         'backgroundColor': colors['background'],
                         'color': colors['text'],
                         'textAlign': 'left',
-                        'minWidth': '180px', 'width': '180px', 'maxWidth': '180px',
                         'overflow': 'hidden',
-                        'textOverflow': 'ellipsis'
-                        # 'border': 'none'
+                        'textOverflow': 'ellipsis',
+                        'width': '50%'
                     },
                     style_data_conditional=[                
                         {
                             'if': {'state': 'active'},  # 'active' | 'selected'
                             'backgroundColor': '#525F89',
-                            'border': '#FFFFF'
-                            # "border": "1px solid blue"                                    
+                            'border': '#FFFFF'                                 
                         },
                         {
                             'if': {'column_id': 'index'},
-                            'textAlign': 'left'
+                            'textAlign': 'left',
                         }
                     ],
                     merge_duplicate_headers=True,
@@ -594,16 +496,14 @@ def update_table(selected_plant):
                     ],
                 ),
             ],
-            className='dcc_control'
         ),
+        # Update growth Table
         html.Div(
             [
                 dash_table.DataTable(
                     id='table-growth',
                     columns=[{'name': ['Growth Requirements', str(i)], 'id': str(i)} for i in data_growth.columns],
                     data=dict_growth,
-                    page_size=50,
-                    style_table={'width': '50%'},
                     style_header={
                         'backgroundColor': 'rgb(30, 30, 30)', 
                         'border': 'none', 
@@ -619,20 +519,19 @@ def update_table(selected_plant):
                         'backgroundColor': colors['background'],
                         'color': colors['text'],
                         'textAlign': 'left',
-                        'minWidth': '180px', 'width': '180px', 'maxWidth': '180px',
                         'overflow': 'hidden',
-                        'textOverflow': 'ellipsis'
+                        'textOverflow': 'ellipsis',
+                        'width': '50%'
                     },
                     style_data_conditional=[                
                         {
-                            'if': {'state': 'active'},  # 'active' | 'selected'
+                            'if': {'state': 'active'},
                             'backgroundColor': '#525F89',
-                            'border': '#FFFFF'
-                            # "border": "1px solid blue"                                    
+                            'border': '#FFFFF'                              
                         },
                         {
                             'if': {'column_id': 'index'},
-                            'textAlign': 'left'
+                            'textAlign': 'left',
                         }
                     ],
                     merge_duplicate_headers=True,
@@ -645,16 +544,15 @@ def update_table(selected_plant):
                     ],
                 ),
             ],
-            className='dcc_control'
         ),
+        # Update reproduction Table
         html.Div(
             [
                 dash_table.DataTable(
                     id='table-reproduction',
                     columns=[{'name': ['Reproduction', str(i)], 'id': str(i)} for i in data_reproduction.columns],
                     data=dict_reproduction,
-                    page_size=50,
-                    style_table={'width': '50%'},
+                    style_table={'width': '100%'},
                     style_header={
                         'backgroundColor': 'rgb(30, 30, 30)', 
                         'border': 'none', 
@@ -670,20 +568,19 @@ def update_table(selected_plant):
                         'backgroundColor': colors['background'],
                         'color': colors['text'],
                         'textAlign': 'left',
-                        'minWidth': '180px', 'width': '180px', 'maxWidth': '180px',
                         'overflow': 'hidden',
-                        'textOverflow': 'ellipsis'
+                        'textOverflow': 'ellipsis',
+                        'width': '50%'
                     },
                     style_data_conditional=[                
                         {
-                            'if': {'state': 'active'},  # 'active' | 'selected'
+                            'if': {'state': 'active'},
                             'backgroundColor': '#525F89',
-                            'border': '#FFFFF'
-                            # "border": "1px solid blue"                                    
+                            'border': '#FFFFF'                             
                         },
                         {
                             'if': {'column_id': 'index'},
-                            'textAlign': 'left'
+                            'textAlign': 'left',
                         }
                     ],
                     merge_duplicate_headers=True,
@@ -696,49 +593,8 @@ def update_table(selected_plant):
                     ],
                 ),
             ],
-            className='dcc_control'
         ),
     ]
-        # table = dash_table.DataTable(
-        #     id='table-paging-and-sorting',
-        #     columns=[
-        #         [{'name': i, 'id': i} for i in df_transposed]
-        #     ],
-        #     page_size=50,
-        #     style_table={'height': '500px', 'overflowY': 'auto', 'marginTop': '15px'},
-        #     style_header={'backgroundColor': '#525F89'},
-        #     style_data_conditional=[                
-        #         {
-        #             'if': {'state': 'active'},  # 'active' | 'selected'
-        #             'backgroundColor': '#525F89',
-        #             'border': '#FFFFF'
-        #             # "border": "1px solid blue"                                    
-        #         },
-        #         {
-        #             'if': {'column_id': 'common_name'},
-        #             'textAlign': 'center'
-        #         }
-        #     ],
-        #     style_header_conditional=[
-        #         {
-        #             'if': {'column_id': 'common_name'},
-        #             'textAlign': 'center'
-        #         }
-        #     ],
-        #     style_cell={
-        #         'backgroundColor': colors['background'],
-        #         'color': colors['text'],
-        #         'textAlign': 'left'
-        #     },
-        #     style_as_list_view=True,
-        #     active_cell={'row': 3, 'column': 0, 'column_id': 'common_name', 'row_id': 36},
-        #     css=[
-        #         {
-        #             'selector': 'tr:hover', 
-        #             'rule': 'background-color: #525F89;'
-        #         }
-        #     ],
-        # ),
 
 # Add value to common/scientific dropdown when datatable is clicked
 @app.callback(
@@ -767,42 +623,56 @@ def input_update(common, scientific):
     if trigger_id == "common-dropdown.value":
         scientific = df_plants[df_plants['common_name'] == common]['scientific_name_x'].to_string(index=False)
         return [
-            html.Label('Common Name'),
-            dcc.Dropdown(
-                id='common-dropdown',
-                options=[{'label': i, 'value': i} for i in df_plants['common_name']],
-                value=common,
-                multi=False,
-                className="dcc_control"
+            html.Div(
+                [
+                    html.Label('Common Name', className='control_label'),
+                    dcc.Dropdown(
+                        id='common-dropdown',
+                        options=[{'label': i, 'value': i} for i in df_plants['common_name']],
+                        value=common,
+                        multi=False
+                    ),                                        
+                ],
+                style={'width': '100%'}
             ),
-            html.Label('Scientific Name'),
-            dcc.Dropdown(
-                id='scientific-dropdown',
-                options=[{'label': i, 'value': i} for i in df_plants['scientific_name_x']],
-                value=scientific,
-                multi=False,
-                className="dcc_control"
-            )
+            html.Div(
+                [
+                    html.Label('Scientific Name', className='control_label'),
+                    dcc.Dropdown(
+                        id='scientific-dropdown',
+                        options=[{'label': i, 'value': i} for i in df_plants['scientific_name_x']],
+                        value=scientific                    )                                     
+                ],
+                style={'width': '100%'}
+            ),
         ]
     if trigger_id == "scientific-dropdown.value":
-        common = df_plants[df_plants['scientific_name_x'] == scientific]['common_name'].to_string(index=False)        
+        common = df_plants[df_plants['scientific_name_x'] == scientific]['common_name'].to_string(index=False)
         return [
-            html.Label(children='Common Name'),
-            dcc.Dropdown(
-                id='common-dropdown',
-                options=[{'label': i, 'value': i} for i in df_plants['common_name']],
-                value=common,
-                multi=False,
-                className="dcc_control"
+            html.Div(
+                [
+                    html.Label('Common Name:', className='control_label'),
+                    dcc.Dropdown(
+                        id='common-dropdown',
+                        options=[{'label': i, 'value': i} for i in df_plants['common_name']],
+                        value=common,
+                        multi=False
+                    ),                                        
+                ],
+                style={'width': '100%'}
             ),
-            html.Label(children='Scientific Name'),
-            dcc.Dropdown(
-                id='scientific-dropdown',
-                options=[{'label': i, 'value': i} for i in df_plants['scientific_name_x']],
-                value=scientific,
-                multi=False,
-                className="dcc_control"
-            )
+            html.Div(
+                [
+                    html.Label('Scientific Name:', className='control_label'),
+                    dcc.Dropdown(
+                        id='scientific-dropdown',
+                        options=[{'label': i, 'value': i} for i in df_plants['scientific_name_x']],
+                        value=scientific,
+                        multi=False
+                    )                                     
+                ],
+                style={'width': '100%'}
+            ),
         ]
     return dash.no_update
 
