@@ -412,21 +412,18 @@ def display_value(drag_value):
 
 # Show image on datatable click
 @app.callback(
-    Output("image-url", "src"), 
-    Input("table-paging-and-sorting", "active_cell"),
+    Output("image-url", "src"),
+    Input("common-dropdown", "value"),
     prevent_initial_call=True
 )
-def cell_clicked(active_cell):
+def cell_clicked(selected_plant):
     trigger_id = dash.callback_context.triggered[0]["prop_id"]
-    if trigger_id == 'table-paging-and-sorting.active_cell':
-        if active_cell is None:
+    if trigger_id == 'common-dropdown.value':
+        if selected_plant is None:
             return dash.no_update
-        row_id = active_cell["row_id"]
-        if df_plants.at[row_id, 'has_image'] > 0:
-            selected_plant = df_plants.at[row_id, 'common_name']
+        if df_plants[df_plants['common_name']==selected_plant]['has_image'].item() > 0:
             return str(get_image_url(selected_plant))
-        else:
-            return 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/No-Image-Placeholder.svg/1200px-No-Image-Placeholder.svg.png'
+        return 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/No-Image-Placeholder.svg/1200px-No-Image-Placeholder.svg.png'
 
 # Update characteristics
 @app.callback(
@@ -477,7 +474,7 @@ def update_table(selected_plant):
                     },
                     style_data_conditional=[                
                         {
-                            'if': {'state': 'active'},  # 'active' | 'selected'
+                            'if': {'state': 'active'},
                             'backgroundColor': '#525F89',
                             'border': '#FFFFF'                                 
                         },
