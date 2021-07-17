@@ -673,4 +673,5 @@ def input_update(common, scientific):
         ]
     return dash.no_update
 
-app.run_server(debug=True, use_reloader=False)
+if __name__ == "__main__":
+    app.run_server(debug=True)
